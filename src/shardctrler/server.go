@@ -1,11 +1,9 @@
 package shardctrler
 
-
 import "6.5840/raft"
 import "6.5840/labrpc"
 import "sync"
 import "6.5840/labgob"
-
 
 type ShardCtrler struct {
 	mu      sync.Mutex
@@ -16,13 +14,8 @@ type ShardCtrler struct {
 	// Your data here.
 
 	configs []Config // indexed by config num
+	stopCh  chan struct{}
 }
-
-
-type Op struct {
-	// Your data here.
-}
-
 
 func (sc *ShardCtrler) Join(args *JoinArgs, reply *JoinReply) {
 	// Your code here.
@@ -39,7 +32,6 @@ func (sc *ShardCtrler) Move(args *MoveArgs, reply *MoveReply) {
 func (sc *ShardCtrler) Query(args *QueryArgs, reply *QueryReply) {
 	// Your code here.
 }
-
 
 // the tester calls Kill() when a ShardCtrler instance won't
 // be needed again. you are not required to do anything
@@ -71,6 +63,7 @@ func StartServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persister)
 	sc.rf = raft.Make(servers, me, persister, sc.applyCh)
 
 	// Your code here.
-
+	sc.stopCh = make(chan struct{})
+	go sc.execute()
 	return sc
 }

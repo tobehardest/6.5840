@@ -18,13 +18,6 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-
-type Op struct {
-	// Your definitions here.
-	// Field names must start with capital letters,
-	// otherwise RPC will break.
-}
-
 type KVServer struct {
 	mu      sync.Mutex
 	me      int
@@ -35,15 +28,36 @@ type KVServer struct {
 	maxraftstate int // snapshot if log grows this big
 
 	// Your definitions here.
-}
+	stopCh chan struct{}
 
+	// key-value store.
+	db map[string]string
+
+	// notifier for each clerk.
+	notifierOfClerk map[int64]*Notifier
+}
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
+	op := &Op{
+		ClerkId: args.ClerkId,
+		OpId:    args.OpId,
+		OpType:  "Get",
+		Key:     args.Key,
+	}
+	reply.Err, reply.Value = kv.waitUntilAppliedOrTimeout(op)
 }
 
 func (kv *KVServer) PutAppend(args *PutAppendArgs, reply *PutAppendReply) {
 	// Your code here.
+	op := &Op{
+		ClerkId: args.ClerkId,
+		OpId:    args.OpId,
+		OpType:  args.OpType,
+		Key:     args.Key,
+		Value:   args.Value,
+	}
+	reply.Err, _ = kv.waitUntilAppliedOrTimeout(op)
 }
 
 // the tester calls Kill() when a KVServer instance won't
@@ -92,6 +106,8 @@ func StartKVServer(servers []*labrpc.ClientEnd, me int, persister *raft.Persiste
 	kv.rf = raft.Make(servers, me, persister, kv.applyCh)
 
 	// You may need initialization code here.
+	kv.db = make(map[string]string)
 
+	go kv.execute()
 	return kv
 }

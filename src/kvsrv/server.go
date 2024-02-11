@@ -14,13 +14,12 @@ func DPrintf(format string, a ...interface{}) (n int, err error) {
 	return
 }
 
-
 type KVServer struct {
 	mu sync.Mutex
 
-	// Your definitions here.
+	// key-value store.
+	db map[string]string
 }
-
 
 func (kv *KVServer) Get(args *GetArgs, reply *GetReply) {
 	// Your code here.
@@ -38,6 +37,6 @@ func StartKVServer() *KVServer {
 	kv := new(KVServer)
 
 	// You may need initialization code here.
-
+	kv.db = make(map[string]string)
 	return kv
 }

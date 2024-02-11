@@ -4,10 +4,12 @@ import "6.5840/labrpc"
 import "crypto/rand"
 import "math/big"
 
-
 type Clerk struct {
 	servers []*labrpc.ClientEnd
 	// You will have to modify this struct.
+	clerkId  int64 // the unique id of this clerk.
+	nextOpId int   // the next op id to allocate for an op.
+	leader   int   // known leader, defaults to the servers[0].
 }
 
 func nrand() int64 {
@@ -21,6 +23,9 @@ func MakeClerk(servers []*labrpc.ClientEnd) *Clerk {
 	ck := new(Clerk)
 	ck.servers = servers
 	// You'll have to add code here.
+	ck.clerkId = nrand()
+	ck.nextOpId = 0
+	ck.leader = 0
 	return ck
 }
 
