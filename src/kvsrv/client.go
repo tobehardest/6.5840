@@ -73,9 +73,9 @@ func (ck *Clerk) Get(key string) string {
 func (ck *Clerk) PutAppend(key string, value string, op string) string {
 	// You will have to modify this function.
 	args := PutAppendArgs{
-		Key:   key,
-		Value: value,
-		Op:    op,
+		Key:    key,
+		Value:  value,
+		OpType: op,
 	}
 	for {
 		reply := PutAppendReply{}

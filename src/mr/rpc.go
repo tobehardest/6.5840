@@ -23,7 +23,24 @@ type ExampleReply struct {
 }
 
 // Add your RPC definitions here.
+// worker request master for task
+type TaskArgs struct {
+	WorkerId int
+}
 
+// master reply worker a task(the task might be nil if no task available)
+type TaskReply struct {
+	Task       *Task
+	ReducerNum int  // the number of reducer, so the mapper can seperate intermediate for different reducer
+	Done       bool // true if all task done then the worker will exit, otherwise loop request master for task
+}
+
+type ReportTaskArgs struct {
+	WorkerId int64
+}
+
+type ReportTaskReply struct {
+}
 
 // Cook up a unique-ish UNIX-domain socket name
 // in /var/tmp, for the coordinator.

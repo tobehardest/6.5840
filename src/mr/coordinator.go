@@ -3,17 +3,24 @@ package mr
 import (
 	"log"
 	"sync"
+	"time"
 )
 import "net"
 import "os"
 import "net/rpc"
 import "net/http"
 
+const (
+	MaxWaitTime = time.Second * 5
+)
+
 type Coordinator struct {
 	// Your definitions here.
 	files   []string
 	nReduce int
 	mu      sync.Mutex
+	taskCh  chan Task
+	tasks   []Task
 }
 
 // Your code here -- RPC handlers for the worker to call.
@@ -59,6 +66,25 @@ func MakeCoordinator(files []string, nReduce int) *Coordinator {
 	// Your code here.
 	c.files = files
 	c.nReduce = nReduce
+	c.mu = sync.Mutex{}
+	c.taskCh = make(chan Task, nReduce)
+	c.initMapTask()
+	go c.run()
 	c.server()
 	return &c
+}
+
+func (c *Coordinator) initMapTask() {
+	c.tasks = make([]Task, len(c.files))
+}
+
+func (c *Coordinator) run() {
+
+}
+
+func (c *Coordinator) selectTask() {
+	if c.Done() {
+		return
+	}
+
 }
